@@ -60,23 +60,20 @@ const MovieList = () => {
   const [error, setError] = useState("");
   const userRole = localStorage.getItem("userRole");
   const isAdmin = userRole === "admin";
-  const selectedCity = localStorage.getItem('selectedCity');
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const selectedCity = localStorage.getItem("selectedCity");
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
 
   useEffect(() => {
     // If user is authenticated but hasn't selected a city, redirect to city selection
     if (isAuthenticated && !selectedCity) {
-      navigate('/select-location');
+      navigate("/select-location");
     }
   }, [isAuthenticated, selectedCity, navigate]);
 
-  // If no city is selected, show loading or placeholder
-  if (isAuthenticated && !selectedCity) {
-    return null; // or a loading component
-  }
-
   useEffect(() => {
-    fetchMovies();
+    if (isAuthenticated && selectedCity) {
+      fetchMovies();
+    }
   }, []);
 
   const fetchMovies = async () => {
@@ -106,6 +103,10 @@ const MovieList = () => {
       }
     }
   };
+
+  if (isAuthenticated && !selectedCity) {
+    return null; // or loading spinner
+  }
 
   if (loading) {
     return (
