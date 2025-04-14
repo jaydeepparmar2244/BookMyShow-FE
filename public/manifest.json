@@ -1,0 +1,10 @@
+{
+  "short_name": "Book My Show",
+  "name": "Book My Show - Movie Ticket Booking",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32"
+    }
+  ]
+} 
