@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import {
   Container,
@@ -24,6 +24,7 @@ import {
 import LocalMoviesIcon from '@mui/icons-material/LocalMovies';
 import { authAPI } from '../services/api';
 import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../context/AuthContext';
 
 // Styled components (same as Signup)
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -32,7 +33,74 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   background: '#ffffff',
-  padding: theme.spacing(3),
+  position: 'relative',
+  overflow: 'hidden',
+  padding: 0,
+  maxWidth: '100% !important',
+}));
+
+const DecorativeLeft = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: '10%',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: '25%',
+  height: '80%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    width: '200px',
+    height: '200px',
+    borderRadius: '50%',
+    background: 'linear-gradient(45deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%)',
+    transform: 'rotate(45deg)',
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    width: '150px',
+    height: '150px',
+    borderRadius: '50%',
+    background: 'linear-gradient(-45deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%)',
+    transform: 'rotate(-45deg)',
+    marginTop: '100px',
+  },
+}));
+
+const DecorativeRight = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  right: '10%',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: '25%',
+  height: '80%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    width: '180px',
+    height: '180px',
+    borderRadius: '50%',
+    background: 'linear-gradient(-45deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%)',
+    transform: 'rotate(-45deg)',
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    width: '120px',
+    height: '120px',
+    borderRadius: '50%',
+    background: 'linear-gradient(45deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%)',
+    transform: 'rotate(45deg)',
+    marginTop: '120px',
+  },
 }));
 
 const AuthCard = styled(Paper)(({ theme }) => ({
@@ -43,6 +111,8 @@ const AuthCard = styled(Paper)(({ theme }) => ({
   backgroundColor: '#000000',
   boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
   padding: theme.spacing(4),
+  position: 'relative',
+  zIndex: 1,
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
@@ -83,6 +153,7 @@ const ActionButton = styled(Button)(({ theme }) => ({
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -112,12 +183,14 @@ const Login = () => {
 
       if (response.data.token) {
         const decodedToken = jwtDecode(response.data.token);
+        const userData = {
+          email: formData.email,
+          role: decodedToken.role,
+          id: decodedToken.id,
+        };
         
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', formData.email);
-        localStorage.setItem('userRole', decodedToken.role);
-        localStorage.setItem('userId', decodedToken.id);
+        login(userData, response.data.token);
+        localStorage.setItem('selectedCity', ''); // Reset city selection
 
         const from = location.state?.from?.pathname || '/movies';
         navigate(from, { replace: true });
@@ -130,140 +203,143 @@ const Login = () => {
   };
 
   return (
-    <StyledContainer maxWidth="sm">
-      <AuthCard elevation={0}>
-        {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <LocalMoviesIcon sx={{ fontSize: 40, color: 'white', mb: 2 }} />
-          <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, mb: 1 }}>
-            Welcome Back
-          </Typography>
-          <Typography variant="body1" sx={{ color: '#999999' }}>
-            Sign in to continue booking tickets
-          </Typography>
-        </Box>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
-              Email Address
+    <StyledContainer>
+      <DecorativeLeft />
+      <DecorativeRight />
+      <Box sx={{ width: '100%', maxWidth: 450, position: 'relative', zIndex: 1 }}>
+        <AuthCard elevation={0}>
+          {/* Header */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <LocalMoviesIcon sx={{ fontSize: 40, color: 'white', mb: 2 }} />
+            <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, mb: 1 }}>
+              Welcome Back
             </Typography>
-            <StyledTextField
-              fullWidth
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email sx={{ color: '#666666' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <Typography variant="body1" sx={{ color: '#999999' }}>
+              Sign in to continue booking tickets
+            </Typography>
           </Box>
 
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
-              Password
-            </Typography>
-            <StyledTextField
-              fullWidth
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock sx={{ color: '#666666' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ color: '#666666' }}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
+                Email Address
+              </Typography>
+              <StyledTextField
+                fullWidth
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email sx={{ color: '#666666' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
 
-          {error && (
-            <Box
-              sx={{
-                mb: 2,
-                p: 2,
-                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 0, 0, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 1
-              }}
-            >
-              <ErrorOutline color="error" fontSize="small" />
-              <Typography
-                color="error"
-                variant="body2"
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
+                Password
+              </Typography>
+              <StyledTextField
+                fullWidth
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock sx={{ color: '#666666' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{ color: '#666666' }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+
+            {error && (
+              <Box
                 sx={{
-                  textAlign: 'center',
-                  wordBreak: 'break-word'
+                  mb: 2,
+                  p: 2,
+                  backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 0, 0, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 1
                 }}
               >
-                {error}
+                <ErrorOutline color="error" fontSize="small" />
+                <Typography
+                  color="error"
+                  variant="body2"
+                  sx={{
+                    textAlign: 'center',
+                    wordBreak: 'break-word'
+                  }}
+                >
+                  {error}
+                </Typography>
+              </Box>
+            )}
+
+            <ActionButton
+              type="submit"
+              fullWidth
+              disabled={isLoading}
+              sx={{ mb: 2 }}
+            >
+              {isLoading ? (
+                <CircularProgress size={24} sx={{ color: '#000000' }} />
+              ) : (
+                'Sign In'
+              )}
+            </ActionButton>
+
+            <Divider sx={{ my: 3, bgcolor: '#333333' }} />
+
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: '#999999' }}>
+                Don't have an account?{' '}
+                <Link
+                  component={RouterLink}
+                  to="/signup"
+                  sx={{
+                    color: 'white',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Sign Up
+                </Link>
               </Typography>
             </Box>
-          )}
-
-          <ActionButton
-            type="submit"
-            fullWidth
-            disabled={isLoading}
-            sx={{ mb: 2 }}
-          >
-            {isLoading ? (
-              <CircularProgress size={24} sx={{ color: '#000000' }} />
-            ) : (
-              'Sign In'
-            )}
-          </ActionButton>
-
-          <Divider sx={{ my: 3, bgcolor: '#333333' }} />
-
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#999999' }}>
-              Don't have an account?{' '}
-              <Link
-                component={RouterLink}
-                to="/signup"
-                sx={{
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  fontWeight: 500,
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                Sign Up
-              </Link>
-            </Typography>
-          </Box>
-        </form>
-      </AuthCard>
+          </form>
+        </AuthCard>
+      </Box>
     </StyledContainer>
   );
 };

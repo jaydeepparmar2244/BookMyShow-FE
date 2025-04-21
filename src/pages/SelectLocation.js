@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -10,44 +10,68 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-} from '@mui/material';
-import { Search as SearchIcon, LocationCity } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+} from "@mui/material";
+import { Search as SearchIcon, LocationCity } from "@mui/icons-material";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import MumbaiIcon from "../assets/mumbai.png";
+import DelhiIcon from "../assets/delhi.png";
+import BangaloreIcon from "../assets/bangalore.png";
+import ChennaiIcon from "../assets/chennai.png";
+import KolkataIcon from "../assets/kolkata.png";
+import HyderabadIcon from "../assets/hyderabad.png";
+import AhmedabadIcon from "../assets/ahmedabad.png";
+import JaipurIcon from "../assets/jaipur.png";
+import PuneIcon from "../assets/pune.png";
 
 const cities = [
-  'Mumbai',
-  'Delhi',
-  'Bangalore',
-  'Chennai',
-  'Kolkata',
-  'Hyderabad',
-  'Pune',
-  'Ahmedabad',
-  'Jaipur',
-  'Chandigarh',
+  { city: "Mumbai", icon: MumbaiIcon },
+  { city: "Delhi", icon: DelhiIcon },
+  { city: "Bangalore", icon: BangaloreIcon },
+  { city: "Chennai", icon: ChennaiIcon },
+  { city: "Kolkata", icon: KolkataIcon },
+  { city: "Hyderabad", icon: HyderabadIcon },
+  { city: "Ahmedabad", icon: AhmedabadIcon },
+  { city: "Jaipur", icon: JaipurIcon },
+  { city: "Pune", icon: PuneIcon },
 ];
 
 const SelectLocation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { updateCity, user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredCities = cities.filter(city =>
-    city.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    // Check if user already has a city selected
+    if (user?.city) {
+      const from = location.state?.from?.pathname || "/movies";
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location]);
+
+  const filteredCities = cities.filter((city) =>
+    city?.city.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleCitySelect = (city) => {
-    localStorage.setItem('selectedCity', city);
+    console.log("Selected city:", city);
+    console.log("Current user:", user);
+    
+    // Update city in AuthContext
+    updateCity(city);
+    
     // Redirect to the previously attempted path or default to /movies
-    const from = location.state?.from?.pathname || '/movies';
+    const from = location.state?.from?.pathname || "/movies";
+    console.log("Navigating to:", from);
     navigate(from, { replace: true });
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <LocationCity sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          <LocationCity sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
           <Typography variant="h4" component="h1" gutterBottom>
             Select Your City
           </Typography>
@@ -74,30 +98,33 @@ const SelectLocation = () => {
 
         <Grid container spacing={2}>
           {filteredCities.map((city) => (
-            <Grid item xs={12} sm={6} md={4} key={city}>
-              <Card 
-                sx={{ 
-                  cursor: 'pointer',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                    transform: 'translateY(-2px)',
-                    transition: 'all 0.2s ease-in-out',
+            <Grid item xs={12} sm={6} md={4} key={city.city}>
+              <Card
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.2s ease-in-out",
                   },
                 }}
-                onClick={() => handleCitySelect(city)}
+                onClick={() => handleCitySelect(city.city)}
               >
                 <CardContent>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                    p: 2
-                  }}>
-                    <LocationCity sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
-                    <Typography variant="h6" component="div" align="center">
-                      {city}
-                    </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <img
+                      src={city.icon}
+                      alt={city.city}
+                      style={{ width: "64px", height: "64px", marginBottom: "8px" }}
+                    />
+                    <Typography variant="h6">{city.city}</Typography>
                   </Box>
                 </CardContent>
               </Card>
@@ -109,4 +136,4 @@ const SelectLocation = () => {
   );
 };
 
-export default SelectLocation; 
+export default SelectLocation;

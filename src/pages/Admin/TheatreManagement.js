@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -33,7 +33,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -54,13 +54,13 @@ import {
   Info,
   EventSeat,
   Stars,
-} from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
-import { theatreAPI, screenAPI } from '../../services/api';
-import ScreenManagement from './components/ScreenManagement';
-import ShowManagement from './components/ShowManagement';
-import ScreenForm from './components/ScreenForm';
-import { DEFAULT_IMAGES } from '../../constants/defaultImages';
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import { theatreAPI, screenAPI } from "../../services/api";
+import ScreenManagement from "./components/ScreenManagement";
+import ShowManagement from "./components/ShowManagement";
+import ScreenForm from "./components/ScreenForm";
+import { DEFAULT_IMAGES } from "../../constants/defaultImages";
 
 const FACILITIES = [
   "IMAX",
@@ -75,28 +75,41 @@ const FACILITIES = [
   "Online Booking",
 ];
 
+const CITIES = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Chennai",
+  "Kolkata",
+  "Hyderabad",
+  "Ahmedabad",
+  "Jaipur",
+  "Pune"
+];
+
 const StyledButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#1a1a1a',
-  color: '#ffffff',
-  padding: '8px 24px',
-  '&:hover': {
-    backgroundColor: '#333333',
+  backgroundColor: "#1a1a1a",
+  color: "#ffffff",
+  padding: "8px 24px",
+  "&:hover": {
+    backgroundColor: "#333333",
   },
-  '&.MuiButton-contained': {
-    boxShadow: 'none',
-  }
+  "&.MuiButton-contained": {
+    boxShadow: "none",
+  },
 }));
 
 const TheatreForm = ({ theatre, onSubmit, onClose }) => {
   const [theatreFormData, setTheatreFormData] = useState({
-    theatre_name: theatre?.theatre_name || '',
-    location: theatre?.location || '',
-    total_screens: theatre?.total_screens || '',
-    contact_person: theatre?.contact_person || '',
-    contact_number: theatre?.contact_number || '',
-    contact_email: theatre?.contact_email || '',
+    theatre_name: theatre?.theatre_name || "",
+    location: theatre?.location || "",
+    city: theatre?.city || "",
+    total_screens: theatre?.total_screens || "",
+    contact_person: theatre?.contact_person || "",
+    contact_number: theatre?.contact_number || "",
+    contact_email: theatre?.contact_email || "",
     facilities: theatre?.facilities || [],
-    seating_capacity: theatre?.seating_capacity || '',
+    seating_capacity: theatre?.seating_capacity || "",
     ratings: theatre?.ratings || 0,
   });
 
@@ -108,35 +121,48 @@ const TheatreForm = ({ theatre, onSubmit, onClose }) => {
     const phoneRegex = /^\+?[0-9\s-]{7,15}$/;
 
     if (!theatreFormData.theatre_name.trim()) {
-      newErrors.theatre_name = 'Theatre name is required';
+      newErrors.theatre_name = "Theatre name is required";
     }
 
     if (!theatreFormData.location || theatreFormData.location.length < 3) {
-      newErrors.location = 'Location must be at least 3 characters long';
+      newErrors.location = "Location must be at least 3 characters long";
     }
 
-    if (!theatreFormData.total_screens || theatreFormData.total_screens < 1 || theatreFormData.total_screens > 100) {
-      newErrors.total_screens = 'Total screens must be between 1 and 100';
+    if (!theatreFormData.city) {
+      newErrors.city = "City is required";
+    }
+
+    if (
+      !theatreFormData.total_screens ||
+      theatreFormData.total_screens < 1 ||
+      theatreFormData.total_screens > 100
+    ) {
+      newErrors.total_screens = "Total screens must be between 1 and 100";
     }
 
     if (!theatreFormData.contact_person.trim()) {
-      newErrors.contact_person = 'Contact person name is required';
+      newErrors.contact_person = "Contact person name is required";
     }
 
     if (!phoneRegex.test(theatreFormData.contact_number)) {
-      newErrors.contact_number = 'Enter a valid contact number';
+      newErrors.contact_number = "Enter a valid contact number";
     }
 
     if (!emailRegex.test(theatreFormData.contact_email)) {
-      newErrors.contact_email = 'Enter a valid email address';
+      newErrors.contact_email = "Enter a valid email address";
     }
 
-    if (!theatreFormData.seating_capacity || theatreFormData.seating_capacity < 50 || theatreFormData.seating_capacity > 5000) {
-      newErrors.seating_capacity = 'Seating capacity must be between 50 and 5000';
+    if (
+      !theatreFormData.seating_capacity ||
+      theatreFormData.seating_capacity < 50 ||
+      theatreFormData.seating_capacity > 5000
+    ) {
+      newErrors.seating_capacity =
+        "Seating capacity must be between 50 and 5000";
     }
 
     if (theatreFormData.ratings < 0 || theatreFormData.ratings > 5) {
-      newErrors.ratings = 'Ratings must be between 0 and 5';
+      newErrors.ratings = "Ratings must be between 0 and 5";
     }
 
     setErrors(newErrors);
@@ -145,28 +171,28 @@ const TheatreForm = ({ theatre, onSubmit, onClose }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setErrors(prev => ({ ...prev, [name]: '' }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
 
-    if (name === 'facilities') {
-      setTheatreFormData(prev => ({
+    if (name === "facilities") {
+      setTheatreFormData((prev) => ({
         ...prev,
-        [name]: Array.isArray(value) ? value : []
+        [name]: Array.isArray(value) ? value : [],
       }));
       return;
     }
 
-    if (['total_screens', 'seating_capacity', 'ratings'].includes(name)) {
-      const numValue = value === '' ? '' : Number(value);
-      setTheatreFormData(prev => ({
+    if (["total_screens", "seating_capacity", "ratings"].includes(name)) {
+      const numValue = value === "" ? "" : Number(value);
+      setTheatreFormData((prev) => ({
         ...prev,
-        [name]: numValue
+        [name]: numValue,
       }));
       return;
     }
 
-    setTheatreFormData(prev => ({
+    setTheatreFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -204,6 +230,25 @@ const TheatreForm = ({ theatre, onSubmit, onClose }) => {
             helperText={errors.location}
             required
           />
+        </Grid>
+
+        <Grid item xs={12}>
+          <FormControl fullWidth error={!!errors.city} required>
+            <InputLabel>City</InputLabel>
+            <Select
+              name="city"
+              value={theatreFormData.city}
+              onChange={handleChange}
+              label="City"
+            >
+              {CITIES.map((city) => (
+                <MenuItem key={city} value={city}>
+                  {city}
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.city && <FormHelperText>{errors.city}</FormHelperText>}
+          </FormControl>
         </Grid>
 
         <Grid item xs={12} md={6}>
@@ -285,7 +330,7 @@ const TheatreForm = ({ theatre, onSubmit, onClose }) => {
               value={theatreFormData.facilities}
               onChange={handleChange}
               renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                   {selected.map((value) => (
                     <Chip key={value} label={value} />
                   ))}
@@ -319,7 +364,7 @@ const TheatreForm = ({ theatre, onSubmit, onClose }) => {
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <StyledButton type="submit">
-          {theatre ? 'Update Theatre' : 'Add Theatre'}
+          {theatre ? "Update Theatre" : "Add Theatre"}
         </StyledButton>
       </DialogActions>
     </form>
@@ -328,17 +373,22 @@ const TheatreForm = ({ theatre, onSubmit, onClose }) => {
 
 const TheatreManagement = () => {
   const [theatres, setTheatres] = useState([]);
+  const [screensOfTheatre, setScreensOfTheatre] = useState([]);
   const [expandedTheatre, setExpandedTheatre] = useState(null);
   const [expandedScreen, setExpandedScreen] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTheatre, setSelectedTheatre] = useState(null);
-  const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [screenDialog, setScreenDialog] = useState({
     open: false,
     theatreId: null,
-    theatreName: '',
+    theatreName: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -347,42 +397,106 @@ const TheatreManagement = () => {
   const [selectedTheatreId, setSelectedTheatreId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [theatreFormData, setTheatreFormData] = useState({
-    theatre_name: '',
-    location: '',
-    total_screens: '',
-    contact_person: '',
-    contact_number: '',
-    contact_email: '',
+    theatre_name: "",
+    location: "",
+    city: "",
+    total_screens: "",
+    contact_person: "",
+    contact_number: "",
+    contact_email: "",
     facilities: [],
-    seating_capacity: '',
-    ratings: 0
+    seating_capacity: "",
+    ratings: 0,
   });
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    type: null, // 'theatre' or 'screen'
+    id: null,
+    title: "",
+    message: "",
+  });
+
+  const validateForm = () => {
+    const newErrors = {};
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    const phoneRegex = /^\+?[0-9\s-]{7,15}$/;
+
+    if (!theatreFormData.theatre_name.trim()) {
+      newErrors.theatre_name = "Theatre name is required";
+    }
+
+    if (!theatreFormData.location || theatreFormData.location.length < 3) {
+      newErrors.location = "Location must be at least 3 characters long";
+    }
+
+    if (!theatreFormData.city) {
+      newErrors.city = "City is required";
+    }
+
+    if (
+      !theatreFormData.total_screens ||
+      theatreFormData.total_screens < 1 ||
+      theatreFormData.total_screens > 100
+    ) {
+      newErrors.total_screens = "Total screens must be between 1 and 100";
+    }
+
+    if (!theatreFormData.contact_person.trim()) {
+      newErrors.contact_person = "Contact person name is required";
+    }
+
+    if (!phoneRegex.test(theatreFormData.contact_number)) {
+      newErrors.contact_number = "Enter a valid contact number";
+    }
+
+    if (!emailRegex.test(theatreFormData.contact_email)) {
+      newErrors.contact_email = "Enter a valid email address";
+    }
+
+    if (
+      !theatreFormData.seating_capacity ||
+      theatreFormData.seating_capacity < 50 ||
+      theatreFormData.seating_capacity > 5000
+    ) {
+      newErrors.seating_capacity =
+        "Seating capacity must be between 50 and 5000";
+    }
+
+    if (theatreFormData.ratings < 0 || theatreFormData.ratings > 5) {
+      newErrors.ratings = "Ratings must be between 0 and 5";
+    }
+
+    return {
+      isValid: Object.keys(newErrors).length === 0,
+      errors: newErrors
+    };
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    
-    setFormErrors(prev => ({ ...prev, [name]: '' }));
 
-    if (name === 'facilities') {
-      setTheatreFormData(prev => ({
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
+
+    if (name === "facilities") {
+      setTheatreFormData((prev) => ({
         ...prev,
-        [name]: Array.isArray(value) ? value : []
+        [name]: Array.isArray(value) ? value : [],
       }));
       return;
     }
 
-    if (['total_screens', 'seating_capacity', 'ratings'].includes(name)) {
-      const numValue = value === '' ? '' : Number(value);
-      setTheatreFormData(prev => ({
+    if (["total_screens", "seating_capacity", "ratings"].includes(name)) {
+      const numValue = value === "" ? "" : Number(value);
+      setTheatreFormData((prev) => ({
         ...prev,
-        [name]: numValue
+        [name]: numValue,
       }));
       return;
     }
 
-    setTheatreFormData(prev => ({
+    setTheatreFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -396,10 +510,21 @@ const TheatreManagement = () => {
       const response = await theatreAPI.getAllTheatres();
       setTheatres(response.data);
     } catch (err) {
-      setError('Failed to fetch theatres');
+      setError("Failed to fetch theatres");
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchScreensOfTheatre = async (theatreId) => {
+    try {
+      const response = await screenAPI.getScreensByTheatre(theatreId);
+      setScreensOfTheatre(response.data);
+    } catch (err) {
+      setError("Failed to fetch theatres");
+      console.error(err);
+    } finally {
     }
   };
 
@@ -408,16 +533,16 @@ const TheatreManagement = () => {
       await theatreAPI.addTheatre(theatreData);
       setAlert({
         show: true,
-        message: 'Theatre added successfully!',
-        type: 'success',
+        message: "Theatre added successfully!",
+        type: "success",
       });
       setOpenDialog(false);
       fetchTheatres();
     } catch (error) {
       setAlert({
         show: true,
-        message: error.message || 'Failed to add theatre',
-        type: 'error',
+        message: error.message || "Failed to add theatre",
+        type: "error",
       });
     }
   };
@@ -427,8 +552,8 @@ const TheatreManagement = () => {
       await theatreAPI.updateTheatre(selectedTheatre._id, theatreData);
       setAlert({
         show: true,
-        message: 'Theatre updated successfully!',
-        type: 'success',
+        message: "Theatre updated successfully!",
+        type: "success",
       });
       setOpenDialog(false);
       setSelectedTheatre(null);
@@ -436,30 +561,20 @@ const TheatreManagement = () => {
     } catch (error) {
       setAlert({
         show: true,
-        message: error.message || 'Failed to update theatre',
-        type: 'error',
+        message: error.message || "Failed to update theatre",
+        type: "error",
       });
     }
   };
 
   const handleDeleteTheatre = async (theatreId) => {
-    if (window.confirm('Are you sure you want to delete this theatre?')) {
-      try {
-        await theatreAPI.deleteTheatre(theatreId);
-        setAlert({
-          show: true,
-          message: 'Theatre deleted successfully!',
-          type: 'success',
-        });
-        fetchTheatres();
-      } catch (error) {
-        setAlert({
-          show: true,
-          message: error.message || 'Failed to delete theatre',
-          type: 'error',
-        });
-      }
-    }
+    setDeleteDialog({
+      open: true,
+      type: "theatre",
+      id: theatreId,
+      title: "Delete Theatre",
+      message: "Are you sure you want to delete this theatre? This action cannot be undone."
+    });
   };
 
   const handleChangePage = (event, newPage) => {
@@ -497,43 +612,44 @@ const TheatreManagement = () => {
   };
 
   const handleDeleteScreen = async (screenId) => {
-    if (!window.confirm('Are you sure you want to delete this screen?')) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await screenAPI.deleteScreen(screenId);
-      await fetchTheatres();
-      setError(null);
-    } catch (err) {
-      setError('Failed to delete screen');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    setDeleteDialog({
+      open: true,
+      type: "screen",
+      id: screenId,
+      title: "Delete Screen",
+      message: "Are you sure you want to delete this screen? This action cannot be undone."
+    });
   };
 
   const handleScreenSubmit = async (screenData) => {
     try {
       setLoading(true);
+      const screenPayload = {
+        ...screenData,
+        theatre_id: selectedTheatre,
+        show_timings: screenData.show_timings || []
+      };
       if (selectedScreen) {
-        await screenAPI.updateScreen(selectedScreen._id, {
-          ...screenData,
-          theatre_id: selectedTheatre
+        await screenAPI.updateScreen(selectedScreen._id, screenPayload);
+        setAlert({
+          show: true,
+          message: "Screen updated successfully!",
+          type: "success"
         });
       } else {
-        await screenAPI.addScreen({
-          ...screenData,
-          theatre_id: selectedTheatre
+        await screenAPI.addScreen(screenPayload);
+        setAlert({
+          show: true,
+          message: "Screen added successfully!",
+          type: "success"
         });
       }
       await fetchTheatres();
       handleCloseScreenDialog();
       setError(null);
     } catch (err) {
-      setError('Failed to save screen');
-      console.error(err);
+      setError("Failed to save screen");
+      console.error("Error saving screen:", err);
     } finally {
       setLoading(false);
     }
@@ -553,26 +669,28 @@ const TheatreManagement = () => {
       setTheatreFormData({
         theatre_name: theatre.theatre_name,
         location: theatre.location,
+        city: theatre.city,
         total_screens: theatre.total_screens,
         contact_person: theatre.contact_person,
         contact_number: theatre.contact_number,
         contact_email: theatre.contact_email,
         facilities: theatre.facilities || [],
         seating_capacity: theatre.seating_capacity,
-        ratings: theatre.ratings || 0
+        ratings: theatre.ratings || 0,
       });
     } else {
       setSelectedTheatre(null);
       setTheatreFormData({
-        theatre_name: '',
-        location: '',
-        total_screens: '',
-        contact_person: '',
-        contact_number: '',
-        contact_email: '',
+        theatre_name: "",
+        location: "",
+        city: "",
+        total_screens: "",
+        contact_person: "",
+        contact_number: "",
+        contact_email: "",
         facilities: [],
-        seating_capacity: '',
-        ratings: 0
+        seating_capacity: "",
+        ratings: 0,
       });
     }
     setOpenDialog(true);
@@ -582,22 +700,23 @@ const TheatreManagement = () => {
     setOpenDialog(false);
     setSelectedTheatre(null);
     setTheatreFormData({
-      theatre_name: '',
-      location: '',
-      total_screens: '',
-      contact_person: '',
-      contact_number: '',
-      contact_email: '',
+      theatre_name: "",
+      location: "",
+      city: "",
+      total_screens: "",
+      contact_person: "",
+      contact_number: "",
+      contact_email: "",
       facilities: [],
-      seating_capacity: '',
-      ratings: 0
+      seating_capacity: "",
+      ratings: 0,
     });
   };
 
   const handleTheatreSubmit = async (e) => {
     e.preventDefault();
     const { isValid, errors } = validateForm();
-    
+
     if (!isValid) {
       setFormErrors(errors);
       return;
@@ -609,15 +728,15 @@ const TheatreManagement = () => {
         await theatreAPI.updateTheatre(selectedTheatre._id, theatreFormData);
         setAlert({
           show: true,
-          message: 'Theatre updated successfully!',
-          type: 'success'
+          message: "Theatre updated successfully!",
+          type: "success",
         });
       } else {
         await theatreAPI.addTheatre(theatreFormData);
         setAlert({
           show: true,
-          message: 'Theatre added successfully!',
-          type: 'success'
+          message: "Theatre added successfully!",
+          type: "success",
         });
       }
       fetchTheatres();
@@ -625,53 +744,49 @@ const TheatreManagement = () => {
     } catch (error) {
       setAlert({
         show: true,
-        message: error.response?.data?.message || 'Failed to save theatre',
-        type: 'error'
+        message: error.response?.data?.message || "Failed to save theatre",
+        type: "error",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const validateForm = () => {
-    const errors = {};
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    const phoneRegex = /^\+?[0-9\s-]{7,15}$/;
-
-    if (!theatreFormData.theatre_name.trim()) {
-      errors.theatre_name = 'Theatre name is required';
+  const handleConfirmDelete = async () => {
+    try {
+      setLoading(true);
+      if (deleteDialog.type === "theatre") {
+        await theatreAPI.deleteTheatre(deleteDialog.id);
+        setAlert({
+          show: true,
+          message: "Theatre deleted successfully!",
+          type: "success"
+        });
+      } else {
+        await screenAPI.deleteScreen(deleteDialog.id);
+        setAlert({
+          show: true,
+          message: "Screen deleted successfully!",
+          type: "success"
+        });
+      }
+      await fetchTheatres();
+    } catch (err) {
+      setError(`Failed to delete ${deleteDialog.type}`);
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setDeleteDialog({ open: false, type: null, id: null, title: "", message: "" });
     }
+  };
 
-    if (!theatreFormData.location || theatreFormData.location.length < 3) {
-      errors.location = 'Location must be at least 3 characters long';
-    }
-
-    if (!theatreFormData.total_screens || theatreFormData.total_screens < 1 || theatreFormData.total_screens > 100) {
-      errors.total_screens = 'Total screens must be between 1 and 100';
-    }
-
-    if (!theatreFormData.contact_person.trim()) {
-      errors.contact_person = 'Contact person name is required';
-    }
-
-    if (!phoneRegex.test(theatreFormData.contact_number)) {
-      errors.contact_number = 'Enter a valid contact number';
-    }
-
-    if (!emailRegex.test(theatreFormData.contact_email)) {
-      errors.contact_email = 'Enter a valid email address';
-    }
-
-    if (!theatreFormData.seating_capacity || theatreFormData.seating_capacity < 50 || theatreFormData.seating_capacity > 5000) {
-      errors.seating_capacity = 'Seating capacity must be between 50 and 5000';
-    }
-
-    return { isValid: Object.keys(errors).length === 0, errors };
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialog({ open: false, type: null, id: null, title: "", message: "" });
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
         <CircularProgress />
       </Box>
     );
@@ -687,12 +802,14 @@ const TheatreManagement = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Box sx={{ 
-        mb: 4, 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center'
-      }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h4" sx={{ fontWeight: 600 }}>
           Theatre Management
         </Typography>
@@ -706,7 +823,7 @@ const TheatreManagement = () => {
       </Box>
 
       {alert.show && (
-        <Alert 
+        <Alert
           severity={alert.type}
           sx={{ mb: 4 }}
           onClose={() => setAlert({ ...alert, show: false })}
@@ -718,83 +835,133 @@ const TheatreManagement = () => {
       <Grid container spacing={3}>
         {theatres.map((theatre) => (
           <Grid item xs={12} key={theatre._id}>
-            <Paper 
-              elevation={2} 
-              sx={{ 
-                overflow: 'hidden'
+            <Paper
+              elevation={2}
+              sx={{
+                overflow: "hidden",
               }}
             >
               <Box sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                       {theatre.theatre_name}
                     </Typography>
                     <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1.5,
+                          }}
+                        >
                           <Typography variant="body2">
-                            <LocationOn sx={{ mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+                            <LocationOn
+                              sx={{
+                                mr: 1,
+                                verticalAlign: "middle",
+                                color: "primary.main",
+                              }}
+                            />
                             {theatre.location}
                           </Typography>
                           <Typography variant="body2">
-                            <TheaterComedy sx={{ mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+                            <TheaterComedy
+                              sx={{
+                                mr: 1,
+                                verticalAlign: "middle",
+                                color: "primary.main",
+                              }}
+                            />
                             Total Screens: {theatre.total_screens}
                           </Typography>
                           <Typography variant="body2">
-                            <Person sx={{ mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+                            <Person
+                              sx={{
+                                mr: 1,
+                                verticalAlign: "middle",
+                                color: "primary.main",
+                              }}
+                            />
                             {theatre.contact_person}
                           </Typography>
                         </Box>
                       </Grid>
                       <Grid item xs={12} md={6}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1.5,
+                          }}
+                        >
                           <Typography variant="body2">
-                            <Phone sx={{ mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+                            <Phone
+                              sx={{
+                                mr: 1,
+                                verticalAlign: "middle",
+                                color: "primary.main",
+                              }}
+                            />
                             {theatre.contact_number}
                           </Typography>
                           <Typography variant="body2">
-                            <Email sx={{ mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+                            <Email
+                              sx={{
+                                mr: 1,
+                                verticalAlign: "middle",
+                                color: "primary.main",
+                              }}
+                            />
                             {theatre.contact_email}
                           </Typography>
                           <Typography variant="body2">
-                            <EventSeat sx={{ mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+                            <EventSeat
+                              sx={{
+                                mr: 1,
+                                verticalAlign: "middle",
+                                color: "primary.main",
+                              }}
+                            />
                             Capacity: {theatre.seating_capacity}
                           </Typography>
                         </Box>
                       </Grid>
                     </Grid>
                   </Box>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    gap: 1,
-                    alignItems: 'flex-start',
-                    height: 'fit-content'
-                  }}>
-                    <IconButton 
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 1,
+                      alignItems: "flex-start",
+                      height: "fit-content",
+                    }}
+                  >
+                    <IconButton
                       onClick={() => handleOpenDialog(theatre)}
                       size="small"
-                      sx={{ 
-                        padding: '6px',
-                        height: '32px',
-                        width: '32px',
-                        '&:hover': { 
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                        }
+                      sx={{
+                        padding: "6px",
+                        height: "32px",
+                        width: "32px",
+                        "&:hover": {
+                          backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        },
                       }}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton 
+                    <IconButton
                       onClick={() => handleDeleteTheatre(theatre._id)}
                       size="small"
-                      sx={{ 
-                        padding: '6px',
-                        height: '32px',
-                        width: '32px',
-                        '&:hover': { 
-                          backgroundColor: 'rgba(255, 0, 0, 0.04)'
-                        }
+                      sx={{
+                        padding: "6px",
+                        height: "32px",
+                        width: "32px",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 0, 0, 0.04)",
+                        },
                       }}
                     >
                       <DeleteIcon fontSize="small" />
@@ -803,82 +970,129 @@ const TheatreManagement = () => {
                 </Box>
               </Box>
 
-              <Accordion 
-                sx={{ 
-                  '&:before': {
-                    display: 'none',
+              <Accordion
+                sx={{
+                  "&:before": {
+                    display: "none",
                   },
-                  boxShadow: 'none',
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
+                  boxShadow: "none",
+                  borderTop: "1px solid",
+                  borderColor: "divider",
                 }}
+                onChange={(e, expanded) =>
+                  expanded ? fetchScreensOfTheatre(theatre?._id) : null
+                }
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   sx={{
-                    backgroundColor: 'grey.50',
-                    '&:hover': {
-                      backgroundColor: 'grey.100',
-                    }
+                    backgroundColor: "grey.50",
+                    "&:hover": {
+                      backgroundColor: "grey.100",
+                    },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                       Screens
                     </Typography>
-                    <Chip 
-                      label={`${theatre.screens?.length || 0} screens`}
+                    <Chip
+                      label={`${theatre.total_screens || 0} screens`}
                       size="small"
                       sx={{ ml: 1 }}
                     />
                   </Box>
                 </AccordionSummary>
-                <AccordionDetails sx={{ p: 2, backgroundColor: 'grey.50' }}>
-                  {theatre.screens?.length > 0 ? (
-                    <Grid container spacing={2}>
-                      {theatre.screens.map((screen) => (
+                <AccordionDetails sx={{ p: 2, backgroundColor: "grey.50" }}>
+                  {screensOfTheatre?.length > 0 ? (
+                    <Grid container spacing={3}>
+                      {screensOfTheatre.map((screen) => (
                         <Grid item xs={12} md={6} lg={4} key={screen._id}>
-                          <Paper 
-                            elevation={0} 
-                            sx={{ 
-                              p: 2,
-                              border: '1px solid',
-                              borderColor: 'divider',
-                              backgroundColor: 'white'
+                          <Paper
+                            elevation={0}
+                            sx={{
+                              p: 3,
+                              border: "1px solid",
+                              borderColor: "divider",
+                              backgroundColor: "white",
+                              borderRadius: 2,
+                              height: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              "&:hover": {
+                                boxShadow: 2,
+                                transition: "all 0.3s ease-in-out"
+                              }
                             }}
                           >
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                              <Typography variant="h6">
-                                {screen.screen_name}
-                              </Typography>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                                mb: 2
+                              }}
+                            >
                               <Box>
-                                <IconButton 
-                                  size="small" 
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                  {screen.screen_name}
+                                </Typography>
+                                <Chip
+                                  label={screen.screen_type}
+                                  color="primary"
+                                  size="small"
+                                  sx={{ mb: 1 }}
+                                />
+                              </Box>
+                              <Box>
+                                <IconButton
+                                  size="small"
                                   onClick={() => handleEditScreen(theatre._id, screen)}
                                   sx={{ mr: 1 }}
                                 >
                                   <EditIcon fontSize="small" />
                                 </IconButton>
-                                <IconButton 
-                                  size="small" 
+                                <IconButton
+                                  size="small"
                                   onClick={() => handleDeleteScreen(screen._id)}
                                 >
                                   <DeleteIcon fontSize="small" />
                                 </IconButton>
                               </Box>
                             </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                              Type: {screen.screen_type}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                              Capacity: {screen.seating_capacity}
-                            </Typography>
+
+                            <Box sx={{ mb: 2 }}>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                <EventSeat sx={{ mr: 1, verticalAlign: "middle" }} />
+                                Capacity: {screen.seating_capacity} seats
+                              </Typography>
+                              {screen.show_timings?.length > 0 && (
+                                <Box sx={{ mt: 1 }}>
+                                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                    <AccessTime sx={{ mr: 1, verticalAlign: "middle" }} />
+                                    Show Timings:
+                                  </Typography>
+                                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                    {screen.show_timings.map((timing, index) => (
+                                      <Chip
+                                        key={index}
+                                        label={`${timing.start_time} - ${timing.end_time}`}
+                                        size="small"
+                                        variant="outlined"
+                                      />
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )}
+                            </Box>
+
                             {screen.facilities?.length > 0 && (
-                              <Box sx={{ mt: 1 }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                              <Box sx={{ mt: "auto" }}>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                  <Stars sx={{ mr: 1, verticalAlign: "middle" }} />
                                   Facilities:
                                 </Typography>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                                   {screen.facilities.map((facility, index) => (
                                     <Chip
                                       key={index}
@@ -895,24 +1109,25 @@ const TheatreManagement = () => {
                       ))}
                     </Grid>
                   ) : (
-                    <Box sx={{ textAlign: 'center', py: 3 }}>
-                      <Typography color="text.secondary">
+                    <Box sx={{ textAlign: "center", py: 3 }}>
+                      <Typography color="text.secondary" sx={{ mb: 2 }}>
                         No screens added yet
                       </Typography>
                       <Button
                         startIcon={<AddIcon />}
                         onClick={() => handleOpenScreenDialog(theatre._id)}
-                        sx={{ mt: 1 }}
+                        variant="outlined"
                       >
                         Add Screen
                       </Button>
                     </Box>
                   )}
-                  {theatre.screens?.length > 0 && (
-                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                  {screensOfTheatre?.length > 0 && (
+                    <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
                       <Button
                         startIcon={<AddIcon />}
                         onClick={() => handleOpenScreenDialog(theatre._id)}
+                        variant="contained"
                       >
                         Add Screen
                       </Button>
@@ -925,18 +1140,18 @@ const TheatreManagement = () => {
         ))}
       </Grid>
 
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={handleCloseDialog}
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { p: 2 }
+          sx: { p: 2 },
         }}
       >
         <DialogTitle sx={{ pb: 3 }}>
           <Typography variant="h5" component="div">
-            {selectedTheatre ? 'Edit Theatre' : 'Add New Theatre'}
+            {selectedTheatre ? "Edit Theatre" : "Add New Theatre"}
           </Typography>
         </DialogTitle>
         <form onSubmit={handleTheatreSubmit}>
@@ -965,6 +1180,24 @@ const TheatreManagement = () => {
                   helperText={formErrors.location}
                   required
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth error={!!formErrors.city} required>
+                  <InputLabel>City</InputLabel>
+                  <Select
+                    name="city"
+                    value={theatreFormData.city}
+                    onChange={handleChange}
+                    label="City"
+                  >
+                    {CITIES.map((city) => (
+                      <MenuItem key={city} value={city}>
+                        {city}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {formErrors.city && <FormHelperText>{formErrors.city}</FormHelperText>}
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -1040,7 +1273,7 @@ const TheatreManagement = () => {
                     value={theatreFormData.facilities}
                     onChange={handleChange}
                     renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => (
                           <Chip key={value} label={value} />
                         ))}
@@ -1061,25 +1294,38 @@ const TheatreManagement = () => {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ p: 3, pt: 2 }}>
-            <Button 
-              onClick={handleCloseDialog}
-              sx={{ mr: 1 }}
-            >
+            <Button onClick={handleCloseDialog} sx={{ mr: 1 }}>
               Cancel
             </Button>
-            <StyledButton
-              type="submit"
-              variant="contained"
-              disabled={loading}
-            >
+            <StyledButton type="submit" variant="contained" disabled={loading}>
               {loading ? (
                 <CircularProgress size={24} color="inherit" />
+              ) : selectedTheatre ? (
+                "Update Theatre"
               ) : (
-                selectedTheatre ? 'Update Theatre' : 'Add Theatre'
+                "Add Theatre"
               )}
             </StyledButton>
           </DialogActions>
         </form>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialog.open}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>{deleteDialog.title}</DialogTitle>
+        <DialogContent>
+          <Typography>{deleteDialog.message}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
       </Dialog>
 
       <ScreenForm
@@ -1093,4 +1339,4 @@ const TheatreManagement = () => {
   );
 };
 
-export default TheatreManagement; 
+export default TheatreManagement;

@@ -1,38 +1,74 @@
-import React, { useEffect } from 'react';
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
-  Button,
   Typography,
-  Box,
+  Button,
   IconButton,
   Menu,
   MenuItem,
-} from '@mui/material';
-import {
-  AccountCircle,
-  LocationOn,
-  AdminPanelSettings,
-} from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+  Box,
+  useMediaQuery,
+  useTheme,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import AdminPanelSettings from "@mui/icons-material/AdminPanelSettings";
+import LocationOn from "@mui/icons-material/LocationOn";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: "#000",
+  boxShadow: "none",
+  position: "sticky",
+  top: 0,
+  zIndex: 1000,
+}));
+
+const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: theme.spacing(1, 2),
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1),
+  },
+}));
+
+const Logo = styled(Typography)(({ theme }) => ({
+  fontWeight: "bold",
+  cursor: "pointer",
+  fontSize: "1.5rem",
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "1.2rem",
+  },
+}));
+
+const NavButton = styled(Button)(({ theme }) => ({
+  color: "white",
+  margin: theme.spacing(0, 1),
+  [theme.breakpoints.down("sm")]: {
+    margin: theme.spacing(0, 0.5),
+    padding: theme.spacing(0.5, 1),
+    fontSize: "0.8rem",
+  },
+}));
 
 const Navbar = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-  const userRole = localStorage.getItem('userRole');
-  const userEmail = localStorage.getItem('userEmail');
-  const selectedCity = localStorage.getItem('selectedCity');
-  const isAdminRoute = location.pathname.startsWith('/admin');
-
-  // Check for authentication and city selection
-  useEffect(() => {
-    if (isAuthenticated && !selectedCity && !isAdminRoute && location.pathname !== '/select-location') {
-      navigate('/select-location');
-    }
-  }, [isAuthenticated, selectedCity, location.pathname, navigate]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -42,115 +78,143 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
+    logout();
+    handleClose();
+    navigate("/");
+  };
+
+  const handleBookingsClick = () => {
+    navigate("/bookings");
     handleClose();
   };
 
-  return (
-    <AppBar 
-      position="sticky" 
-      sx={{ 
-        bgcolor: 'black',
-        top: 0,
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-        transition: 'box-shadow 0.3s ease-in-out',
-        '&.sticky': {
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }
-      }}
-    >
-      <Toolbar>
-        {/* Logo/Home link */}
-        <Typography
-          variant="h6"
-          component="div"
-          sx={{ flexGrow: 1, cursor: 'pointer' }}
-          onClick={() => navigate('/')}
-        >
-          BookMyShow
-        </Typography>
-
-        {/* Show location selector except on admin routes */}
-        {!isAdminRoute && (
-          <Button
-            color="inherit"
-            startIcon={<LocationOn />}
-            onClick={() => navigate('/select-location')}
-            sx={{ mr: 2 }}
-          >
-            {selectedCity || 'Select City'}
-          </Button>
-        )}
-
-        {/* Auth section */}
-        {!isAuthenticated ? (
-          <Box>
-            <Button
-              color="inherit"
-              onClick={() => navigate('/login')}
-              sx={{ mr: 1 }}
-            >
-              Login
-            </Button>
-            <Button
-              color="inherit"
-              onClick={() => navigate('/signup')}
-            >
-              Sign up
-            </Button>
-          </Box>
-        ) : (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Admin Panel Button - shown separately if user is admin */}
-            {userRole === 'admin' && (
-              <Button
-                color="inherit"
-                startIcon={<AdminPanelSettings />}
-                onClick={() => navigate('/admin')}
-                sx={{ mr: 2 }}
-              >
-                Admin Panel
-              </Button>
+  const drawer = (
+    <Box sx={{ width: 250 }}>
+      <List>
+        <ListItem button onClick={() => navigate("/")}>
+          <ListItemText primary="Home" />
+        </ListItem>
+        {user && (
+          <>
+            <Divider />
+            {user.role === "admin" && (
+              <ListItem button onClick={() => navigate("/admin")}>
+                <ListItemText primary="Admin Panel" />
+              </ListItem>
             )}
-            
-            {/* User Menu */}
+            <ListItem button onClick={handleBookingsClick}>
+              <ListItemText primary="My Bookings" />
+            </ListItem>
+            <ListItem button onClick={handleLogout}>
+              <ListItemText primary="Logout" />
+            </ListItem>
+          </>
+        )}
+      </List>
+    </Box>
+  );
+
+  return (
+    <StyledAppBar>
+      <StyledToolbar>
+        <Logo variant="h6" onClick={() => navigate("/")}>
+          BookMyShow
+        </Logo>
+
+        {isMobile ? (
+          <>
             <IconButton
-              size="large"
-              onClick={handleMenu}
               color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
             >
-              <AccountCircle />
+              <MenuIcon />
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
+            <Drawer
+              variant="temporary"
+              anchor="right"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true,
               }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
             >
-              <MenuItem disabled>
-                <Typography variant="body2" color="textSecondary">
-                  {userEmail}
-                </Typography>
-              </MenuItem>
-              <MenuItem onClick={() => navigate('/profile')}>My Profile</MenuItem>
-              <MenuItem onClick={() => navigate('/bookings')}>My Bookings</MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
+              {drawer}
+            </Drawer>
+          </>
+        ) : (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Button
+              color="inherit"
+              startIcon={<LocationOn />}
+              onClick={() => navigate("/select-location")}
+              sx={{ mr: 2 }}
+            >
+              {user?.city || "Select City"}
+            </Button>
+            {user && (
+              <>
+                {user.role === "admin" && (
+                  <NavButton
+                    startIcon={<AdminPanelSettings />}
+                    onClick={() => navigate("/admin")}
+                  >
+                    Admin Panel
+                  </NavButton>
+                )}
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={handleBookingsClick}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <ConfirmationNumberIcon fontSize="small" />
+                      <Typography>My Bookings</Typography>
+                    </Box>
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>
+                    <Typography>Logout</Typography>
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+            {!user && (
+              <>
+                <NavButton onClick={() => navigate("/login")}>Login</NavButton>
+                <NavButton onClick={() => navigate("/signup")}>Sign Up</NavButton>
+              </>
+            )}
           </Box>
         )}
-      </Toolbar>
-    </AppBar>
+      </StyledToolbar>
+    </StyledAppBar>
   );
 };
 

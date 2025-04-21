@@ -31,13 +31,17 @@ api.interceptors.request.use(
         if (tokenData.exp * 1000 < Date.now()) {
           // Token is expired
           handleLogout();
-          return Promise.reject(new Error("Session expired. Please login again."));
+          return Promise.reject(
+            new Error("Session expired. Please login again.")
+          );
         }
         config.headers.Authorization = `Bearer ${token}`;
       } catch (error) {
         // Invalid token format
         handleLogout();
-        return Promise.reject(new Error("Invalid session. Please login again."));
+        return Promise.reject(
+          new Error("Invalid session. Please login again.")
+        );
       }
     }
     return config;
@@ -54,11 +58,15 @@ api.interceptors.response.use(
     if (error.response) {
       // Handle all authentication/authorization related errors
       if (
-        error.response.status === 401 || 
+        error.response.status === 401 ||
         error.response.status === 403 ||
-        error.response?.data?.message?.toLowerCase().includes('invalid token') ||
-        error.response?.data?.message?.toLowerCase().includes('expired token') ||
-        error.response?.data?.message?.toLowerCase().includes('unauthorized')
+        error.response?.data?.message
+          ?.toLowerCase()
+          .includes("invalid token") ||
+        error.response?.data?.message
+          ?.toLowerCase()
+          .includes("expired token") ||
+        error.response?.data?.message?.toLowerCase().includes("unauthorized")
       ) {
         handleLogout();
         return Promise.reject(
@@ -101,21 +109,21 @@ export const authAPI = {
 
 // Movie APIs
 export const moviesAPI = {
-  getAllMovies: () => api.get('/movies'),
+  getAllMovies: () => api.get("/movies"),
   getMovieById: (id) => api.get(`/movies/${id}`),
   addMovie: (movieData) => {
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     };
-    return api.post('/movies/new', movieData, config);
+    return api.post("/movies/new", movieData, config);
   },
   updateMovie: (id, movieData) => {
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     };
     return api.put(`/movies/${id}`, movieData, config);
   },
@@ -124,53 +132,55 @@ export const moviesAPI = {
 
 // Theatre APIs with correct endpoint
 export const theatreAPI = {
-  getAllTheatres: () => api.get('/theatres'),
+  getAllTheatres: () => api.get("/theatres"),
   getTheatreById: (id) => api.get(`/theatres/${id}`),
-  addTheatre: (theatreData) => api.post('/theatres/new', theatreData),
+  addTheatre: (theatreData) => api.post("/theatres/new", theatreData),
   updateTheatre: (id, theatreData) => api.put(`/theatres/${id}`, theatreData),
   deleteTheatre: (id) => api.delete(`/theatres/${id}`),
+};
+// Theatre APIs with correct endpoint
+export const showsAPI = {
+  getAllShows: () => api.get("/shows"),
+  getMoviesShows: (city) => api.get(`/shows/movies/${city}`),
+  getShowsByMovie: (movieId, city) =>
+    api.get(`/shows/movie/${movieId}/city/${city}`),
+  addShow: (showData) => api.post("/shows/new", showData),
+  updateShow: (showId, showData) => api.put(`/shows/${showId}`, showData),
+  deleteShow: (showId) => api.delete(`/shows/${showId}`),
 };
 
 // Screen APIs
 export const screenAPI = {
-  getAllScreens: () => api.get('/screens'),
-  getScreensByTheatre: (theatreId) => api.get(`/screens/theatre/${theatreId}`),
-  addScreen: (screenData) => api.post('/screens/new', {
-    theatre_id: screenData.theatre,
-    screen_name: screenData.screen_name,
-    screen_type: screenData.screen_type,
-    seating_capacity: screenData.seating_capacity,
-    facilities: screenData.facilities,
-  }),
-  updateScreen: (screenId, screenData) => api.put(`/screens/${screenId}`, {
-    theatre_id: screenData.theatre,
-    screen_name: screenData.screen_name,
-    screen_type: screenData.screen_type,
-    seating_capacity: screenData.seating_capacity,
-    facilities: screenData.facilities,
-  }),
+  getAllScreens: () => api.get("/screens"),
+  getScreensByTheatre: (theatreId) =>
+    api.get(`/screens/theatre/${theatreId}/screens`),
+  addScreen: (screenData) => api.post("/screens/new", screenData),
+  updateScreen: (screenId, screenData) =>
+    api.put(`/screens/${screenId}`, screenData),
   deleteScreen: (screenId) => api.delete(`/screens/${screenId}`),
 };
 
 // Booking APIs
-export const bookingAPI = {
-  getAvailableSeats: async (showtimeId) => {
-    try {
-      const response = await api.get(`/showtimes/${showtimeId}/seats`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+export const bookingsAPI = {
+  createBooking: async (bookingData) => {
+    const response = await api.post('/bookings', bookingData);
+    return response.data;
   },
 
-  createBooking: async (bookingData) => {
-    try {
-      const response = await api.post("/bookings", bookingData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+  getUserBookings: async () => {
+    const response = await api.get('/bookings/my-bookings');
+    return response.data;
   },
+
+  getBookingById: async (bookingId) => {
+    const response = await api.get(`/bookings/${bookingId}`);
+    return response.data;
+  },
+
+  cancelBooking: async (bookingId) => {
+    const response = await api.put(`/bookings/${bookingId}/cancel`);
+    return response.data;
+  }
 };
 
 // User APIs
@@ -210,15 +220,6 @@ export const validateToken = () => {
     handleLogout();
     return false;
   }
-};
-
-export const showsAPI = {
-  getAllShows: () => api.get('/shows'),
-  getShowsByTheatre: (theatreId) => api.get(`/shows/theatre/${theatreId}`),
-  getShowsByMovie: (movieId) => api.get(`/shows/movie/${movieId}`),
-  addShow: (showData) => api.post('/shows', showData),
-  updateShow: (showId, showData) => api.put(`/shows/${showId}`, showData),
-  deleteShow: (showId) => api.delete(`/shows/${showId}`),
 };
 
 export default api;

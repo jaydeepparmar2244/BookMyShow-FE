@@ -238,9 +238,6 @@ const MovieFormDialog = ({ open, handleClose, selectedMovie, handleSubmit }) => 
       }));
       setImagePreview(URL.createObjectURL(file));
       setErrors(prev => ({ ...prev, image: null }));
-
-      // Log for debugging
-      console.log('Image file:', imageFile);
     }
   };
 
@@ -275,13 +272,6 @@ const MovieFormDialog = ({ open, handleClose, selectedMovie, handleSubmit }) => 
       // If editing and no new image, don't send image field at all
       // Let the backend keep the existing image
     }
-
-    // Debug log
-    console.log('FormData contents:');
-    for (let pair of formDataToSend.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-
     handleSubmit(formDataToSend);
   };
 
@@ -555,7 +545,6 @@ const MovieManagement = () => {
     try {
       setLoading(true);
       const response = await moviesAPI.getAllMovies();
-      console.log('Movie data example:', response.data[0]);
       setMovies(response.data || []);
     } catch (err) {
       setError('Failed to fetch movies');
