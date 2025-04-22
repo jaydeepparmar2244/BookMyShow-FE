@@ -589,7 +589,6 @@ const MovieManagement = () => {
       fetchMovies();
       handleCloseDialog();
     } catch (err) {
-      console.error('Error:', err.response?.data || err);
       setError(err.response?.data?.message || 'Failed to save movie');
     } finally {
       setLoading(false);

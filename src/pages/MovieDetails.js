@@ -165,7 +165,6 @@ const BookingForm = ({ show, open, onClose, onSubmit }) => {
           setApiError(response.error || 'Failed to create booking');
         }
       } catch (error) {
-        console.error('Booking error:', error);
         setApiError(error.response?.data?.error || 'Failed to create booking. Please try again.');
       } finally {
         setIsSubmitting(false);
@@ -306,7 +305,6 @@ const MovieDetails = () => {
       setLoading(true);
       setError("");
       const response = await showsAPI.getShowsByMovie(movieId, user.city);
-      console.log("API Response:", response);
       
       if (response && response.data) {
         setMovieData(response.data);
@@ -315,7 +313,6 @@ const MovieDetails = () => {
         setMovieData(null);
       }
     } catch (err) {
-      console.error("Error in fetchMovieDetails:", err);
       setError(err.message || "Failed to fetch movie details");
       setMovieData(null);
     } finally {

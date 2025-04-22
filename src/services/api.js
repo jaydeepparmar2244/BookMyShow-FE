@@ -172,7 +172,6 @@ export const bookingsAPI = {
       const response = await api.get('/bookings/my-bookings');
       return response.data; // The data is already an array from backend
     } catch (error) {
-      console.error('Error fetching bookings:', error);
       return []; // Return empty array on error
     }
   },

@@ -360,7 +360,6 @@ const ShowManagement = () => {
       setShows(showsResponse.data || []);
     } catch (error) {
       setError("Failed to fetch data. Please try again later.");
-      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -387,7 +386,6 @@ const ShowManagement = () => {
       handleCloseDialog();
     } catch (error) {
       setError("Failed to save show. Please try again.");
-      console.error("Error saving show:", error);
     }
   };
 
@@ -398,7 +396,6 @@ const ShowManagement = () => {
         fetchAllData();
       } catch (error) {
         setError("Failed to delete show. Please try again.");
-        console.error("Error deleting show:", error);
       }
     }
   };

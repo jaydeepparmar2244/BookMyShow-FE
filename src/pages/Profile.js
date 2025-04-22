@@ -65,7 +65,6 @@ const Profile = () => {
       setBookings(response.data || []);
     } catch (err) {
       setError('Failed to fetch bookings');
-      console.error('Error fetching bookings:', err);
     } finally {
       setLoading(false);
     }

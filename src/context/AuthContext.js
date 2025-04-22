@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
       } catch (error) {
-        console.error("Error parsing stored user:", error);
         localStorage.removeItem("user");
       }
     }
@@ -32,7 +31,6 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem("token");
         }
       } catch (error) {
-        console.error("Error validating token:", error);
         localStorage.removeItem("token");
       }
     }
@@ -56,9 +54,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateCity = (city) => {
-    console.log("Updating city to:", city);
-    console.log("Current user before update:", user);
-    
     let updatedUser;
     if (!user) {
       // If no user exists, create a new user object with just the city
@@ -70,7 +65,6 @@ export const AuthProvider = ({ children }) => {
     
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
-    console.log("Updated user with city:", updatedUser);
   };
 
   const isAuthenticated = () => {

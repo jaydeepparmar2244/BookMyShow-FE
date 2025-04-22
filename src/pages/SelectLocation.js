@@ -55,15 +55,11 @@ const SelectLocation = () => {
   );
 
   const handleCitySelect = (city) => {
-    console.log("Selected city:", city);
-    console.log("Current user:", user);
-    
     // Update city in AuthContext
     updateCity(city);
     
     // Redirect to the previously attempted path or default to /movies
     const from = location.state?.from?.pathname || "/movies";
-    console.log("Navigating to:", from);
     navigate(from, { replace: true });
   };
 

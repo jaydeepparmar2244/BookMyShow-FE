@@ -511,7 +511,6 @@ const TheatreManagement = () => {
       setTheatres(response.data);
     } catch (err) {
       setError("Failed to fetch theatres");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -523,7 +522,6 @@ const TheatreManagement = () => {
       setScreensOfTheatre(response.data);
     } catch (err) {
       setError("Failed to fetch theatres");
-      console.error(err);
     } finally {
     }
   };
@@ -649,7 +647,6 @@ const TheatreManagement = () => {
       setError(null);
     } catch (err) {
       setError("Failed to save screen");
-      console.error("Error saving screen:", err);
     } finally {
       setLoading(false);
     }
@@ -773,7 +770,6 @@ const TheatreManagement = () => {
       await fetchTheatres();
     } catch (err) {
       setError(`Failed to delete ${deleteDialog.type}`);
-      console.error(err);
     } finally {
       setLoading(false);
       setDeleteDialog({ open: false, type: null, id: null, title: "", message: "" });
