@@ -99,6 +99,17 @@ const Navbar = () => {
         <ListItem button onClick={() => navigate("/")}>
           <ListItemText primary="Home" />
         </ListItem>
+        <ListItem 
+          button 
+          onClick={() => {
+            navigate("/select-location");
+            handleDrawerToggle();
+          }}
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <LocationOn sx={{ mr: 1 }} />
+          <ListItemText primary={user?.city || "Select City"} />
+        </ListItem>
         {user && (
           <>
             <Divider />

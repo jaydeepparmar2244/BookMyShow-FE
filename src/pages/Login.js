@@ -35,10 +35,26 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   background: '#ffffff',
   position: 'relative',
   overflow: 'hidden',
-  padding: 0,
-  maxWidth: '100% !important',
+  padding: theme.spacing(3),
 }));
 
+const AuthCard = styled(Paper)(({ theme }) => ({
+  width: '100%',
+  maxWidth: 450,
+  borderRadius: 20,
+  overflow: 'hidden',
+  backgroundColor: '#000000',
+  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+  padding: theme.spacing(4),
+  position: 'relative',
+  zIndex: 1,
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(3),
+    borderRadius: 16,
+  },
+}));
+
+// Keep DecorativeLeft and DecorativeRight but hide them on mobile
 const DecorativeLeft = styled(Box)(({ theme }) => ({
   position: 'absolute',
   left: '10%',
@@ -50,6 +66,9 @@ const DecorativeLeft = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  [theme.breakpoints.down('sm')]: {
+    display: 'none',
+  },
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -82,6 +101,9 @@ const DecorativeRight = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  [theme.breakpoints.down('sm')]: {
+    display: 'none',
+  },
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -103,7 +125,20 @@ const DecorativeRight = styled(Box)(({ theme }) => ({
   },
 }));
 
-const AuthCard = styled(Paper)(({ theme }) => ({
+const MobileAuthCard = styled(Box)(({ theme }) => ({
+  width: '100%',
+  minHeight: '100vh',
+  backgroundColor: '#000000',
+  padding: theme.spacing(4, 2),
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  [theme.breakpoints.up('sm')]: {
+    display: 'none',
+  },
+}));
+
+const DesktopAuthCard = styled(Paper)(({ theme }) => ({
   width: '100%',
   maxWidth: 450,
   borderRadius: 20,
@@ -113,6 +148,10 @@ const AuthCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   position: 'relative',
   zIndex: 1,
+  display: 'none',
+  [theme.breakpoints.up('sm')]: {
+    display: 'block',
+  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
@@ -206,20 +245,35 @@ const Login = () => {
     <StyledContainer>
       <DecorativeLeft />
       <DecorativeRight />
-      <Box sx={{ width: '100%', maxWidth: 450, position: 'relative', zIndex: 1 }}>
+      <Box sx={{ 
+        width: '100%',
+        maxWidth: 450,
+        position: 'relative',
+        zIndex: 1,
+      }}>
         <AuthCard elevation={0}>
-          {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <LocalMoviesIcon sx={{ fontSize: 40, color: 'white', mb: 2 }} />
-            <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, mb: 1 }}>
+            <LocalMoviesIcon sx={{ 
+              fontSize: { xs: 32, sm: 40 }, 
+              color: 'white', 
+              mb: { xs: 1.5, sm: 2 } 
+            }} />
+            <Typography variant="h4" sx={{ 
+              color: 'white', 
+              fontWeight: 700, 
+              mb: 1,
+              fontSize: { xs: '1.5rem', sm: '2rem' }
+            }}>
               Welcome Back
             </Typography>
-            <Typography variant="body1" sx={{ color: '#999999' }}>
+            <Typography variant="body1" sx={{ 
+              color: '#999999',
+              fontSize: { xs: '0.875rem', sm: '1rem' }
+            }}>
               Sign in to continue booking tickets
             </Typography>
           </Box>
 
-          {/* Form */}
           <form onSubmit={handleSubmit}>
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>

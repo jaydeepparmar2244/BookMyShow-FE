@@ -103,14 +103,13 @@ const Bookings = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await bookingsAPI.getUserBookings();
-      if (response) {
-        setBookings(response);
-      } else {
-        setBookings([]);
-      }
+      setError('');
+      const data = await bookingsAPI.getUserBookings();
+      setBookings(data || []); // Ensure we always set an array
     } catch (err) {
+      console.error('Error fetching bookings:', err);
       setError('Failed to fetch bookings');
+      setBookings([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

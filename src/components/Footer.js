@@ -5,9 +5,9 @@ import {
   Grid,
   Typography,
   IconButton,
-  Link,
   useTheme,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -70,9 +70,9 @@ const Footer = () => {
               Quick Links
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <FooterLink href="/shows">Shows</FooterLink>
-              <FooterLink href="/select-location">Select Location</FooterLink>
-              <FooterLink href="/faqs">FAQs</FooterLink>
+              <FooterLink to="/shows">Shows</FooterLink>
+              <FooterLink to="/select-location">Select Location</FooterLink>
+              <FooterLink to="/faqs">FAQs</FooterLink>
             </Box>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
@@ -80,8 +80,8 @@ const Footer = () => {
               Help & Support
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <FooterLink href="/faqs">FAQs</FooterLink>
-              <FooterLink href="/terms">Terms of Use</FooterLink>
+              <FooterLink to="/faqs">FAQs</FooterLink>
+              <FooterLink to="/terms">Terms of Use</FooterLink>
             </Box>
           </Grid>
         </Grid>
